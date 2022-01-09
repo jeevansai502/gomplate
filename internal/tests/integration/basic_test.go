@@ -256,3 +256,17 @@ func TestBasic_AppliesChmodBeforeWrite(t *testing.T) {
 	assert.NilError(t, err)
 	assert.Equal(t, "hi\n", string(content))
 }
+
+func TestBasic_CreatesMissingDirectory(t *testing.T) {
+	tmpDir := setupBasicTest(t)
+	out := tmpDir.Join("foo/bar/baz")
+	o, e, err := cmd(t, "-f", tmpDir.Join("one"), "-o", out).run()
+	assertSuccess(t, o, e, err, "")
+
+	info, err := os.Stat(out)
+	assert.NilError(t, err)
+	assert.Equal(t, iohelpers.NormalizeFileMode(0644), info.Mode())
+	content, err := ioutil.ReadFile(out)
+	assert.NilError(t, err)
+	assert.Equal(t, "hi\n", string(content))
+}
